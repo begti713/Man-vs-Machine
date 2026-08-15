@@ -7,7 +7,7 @@ from google import genai
 from google.genai import types
 from PIL import Image
 
-# --- Configuration ---
+# Configuration 
 API_KEY = "YOUR_GEMINI_API_KEY"
 SPREADSHEET_ID = "YOUR_SPREADSHEET_ID_HERE"
 OUTPUT_FOLDER = "sheet_generated_images"
@@ -20,17 +20,16 @@ csv_url = f"https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/export?forma
 print(f"Starting live monitor. Saving images to '{OUTPUT_FOLDER}'.")
 print("Press Ctrl+C in this terminal to stop the script.\n")
 
-# The infinite loop that keeps the script running live
 while True:
     try:
-        # 1. Download the latest version of the Google Sheet
+        # Download the latest version of the Google Sheet
         response = requests.get(csv_url)
         
         if response.status_code == 200:
             csv_file = io.StringIO(response.text)
             reader = csv.DictReader(csv_file)
             
-            # 2. Check every row in the sheet
+            # Check every row in the sheet
             for idx, row in enumerate(reader, start=1):
                 prompt = row.get("prompt", "").strip()
                 custom_name = row.get("file_name", f"image_{idx}").strip()
@@ -42,11 +41,11 @@ while True:
                 
                 output_path = os.path.join(OUTPUT_FOLDER, f"{custom_name}.png")
                 
-                # 3. THE MAGIC TRICK: Check if we already did this one
+                # Check if we already did this one
                 if os.path.exists(output_path):
-                    continue # Skip to the next row immediately
+                    continue 
                     
-                # 4. If we made it here, it's a NEW prompt!
+                #a NEW prompt!
                 print(f"[*] New prompt detected! Generating '{custom_name}'...")
                 
                 try:
@@ -59,13 +58,13 @@ while True:
                         ),
                     )
                     
-                    # Save the new image
+                    # Save new image
                     img_data = img_response.generated_images[0].image.image_bytes
                     image = Image.open(io.BytesIO(img_data))
                     image.save(output_path)
                     print(f"    ✅ Saved to {output_path}\n")
                     
-                    # Pause briefly after a successful generation to respect API limits
+                    # Pause briefly
                     time.sleep(3) 
                     
                 except Exception as e:
